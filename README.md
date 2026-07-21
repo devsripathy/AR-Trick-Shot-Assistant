@@ -5,18 +5,19 @@
 ### *"Magic isn't breaking the laws of physics. It's understanding them so well that everyone else thinks you did."*
 
 <img src="https://i.imgur.com/placeholder-ar-hud.gif" alt="AR Trickshot Demo" width="80%">
-╔═══════════════════════════════════════════════════════════════════╗
-║                                                                   ║
-║ What if mathematics could feel like magic?                        ║
-║                                                                   ║
-║ This is an experiment to answer one question:                     ║
-║                                                                   ║
-║ Can an AI calculate the perfect trick shot faster                 ║
-║ than a human can imagine it?                                      ║
-║                                                                   ║
-╚═══════════════════════════════════════════════════════════════════╝
 
-text
+```
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                 ║
+║   What if mathematics could feel like magic?                    ║
+║                                                                 ║
+║   This is an experiment to answer one question:                ║
+║                                                                 ║
+║   Can an AI calculate the perfect trick shot faster            ║
+║   than a human can imagine it?                                 ║
+║                                                                 ║
+╚═══════════════════════════════════════════════════════════════════╝
+```
 
 [![Python](https://img.shields.io/badge/Python-3.11+-magenta?style=for-the-badge&logo=python&logoColor=white&labelColor=black)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red?style=for-the-badge&logo=pytorch&logoColor=white&labelColor=black)](https://pytorch.org/)
@@ -47,13 +48,14 @@ This project started because of **one scene** in the novel *Infinite Mage*.
 To everyone around him, it looks like **magic**.
 
 But underneath...
-╔═══════════════════════════════════════════════════════════════════╗
-║ ║
-║ It's just mathematics. ║
-║ ║
-╚═══════════════════════════════════════════════════════════════════╝
 
-text
+```
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                 ║
+║                         It's just mathematics.                  ║
+║                                                                 ║
+╚═══════════════════════════════════════════════════════════════════╝
+```
 
 That idea stayed in my head for **days**.
 
@@ -82,19 +84,21 @@ Humans simply **estimate** those rules from experience.
 My idea is to let **AI perform those calculations continuously** while I focus on taking the shot.
 
 Instead of
-╔═══════════════════════════════════════════════════════════════════╗
-║ "I think this might work..." ║
-╚═══════════════════════════════════════════════════════════════════╝
 
-text
+```
+╔═══════════════════════════════════════════════════════════════════╗
+║  "I think this might work..."                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+```
 
 the system tells me
-╔═══════════════════════════════════════════════════════════════════╗
-║ "If you shoot here with this much force, ║
-║ this is exactly what will happen." ║
-╚═══════════════════════════════════════════════════════════════════╝
 
-text
+```
+╔═══════════════════════════════════════════════════════════════════╗
+║  "If you shoot here with this much force,                       ║
+║   this is exactly what will happen."                            ║
+╚═══════════════════════════════════════════════════════════════════╝
+```
 
 The experience almost feels like having the **calculation ability from *Infinite Mage***, except everything is happening through an **AR display**.
 
@@ -103,15 +107,16 @@ The experience almost feels like having the **calculation ability from *Infinite
 ## 🔢 The Math Behind It
 
 <div align="center">
-┌─────────────────────────────────────────────────────────────────┐
-│ │
-│ At its core, this project isn't magic. │
-│ │
-│ It's just a lot of physics happening very quickly. │
-│ │
-└─────────────────────────────────────────────────────────────────┘
 
-text
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│   At its core, this project isn't magic.                       │
+│                                                                 │
+│   It's just a lot of physics happening very quickly.           │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 </div>
 
@@ -131,22 +136,24 @@ text
 ### Using these values, the AI predicts how the object will move over time.
 
 **The basic motion follows:**
-┌─────────────────────────────────────────────────────────────────┐
-│ │
-│ Position = InitialPosition + Velocity × t + ½ × Acceleration × t² │
-│ │
-└─────────────────────────────────────────────────────────────────┘
 
-text
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│   Position = InitialPosition + Velocity × t + ½ × Acceleration × t² │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 **For bank shots it also applies:**
-┌─────────────────────────────────────────────────────────────────┐
-│ │
-│ Angle of Incidence = Angle of Reflection │
-│ │
-└─────────────────────────────────────────────────────────────────┘
 
-text
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│   Angle of Incidence = Angle of Reflection                     │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ### The interesting part isn't solving one equation.
 
@@ -179,72 +186,75 @@ So instead of **imagining** the path...
 ---
 
 ## 🚀 Future Plans
-┌─────────────────────────────────────────────────────────────────┐
-│ │
-│ 🔄 Spin prediction │
-│ 🇬🇧 English effects │
-│ 🧱 Dynamic obstacle detection │
-│ 👥 Multiplayer trick-shot mode │
-│ 📚 Learning from previous successful shots │
-│ │
-└─────────────────────────────────────────────────────────────────┘
 
-text
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│   🔄  Spin prediction                                          │
+│   🇬🇧  English effects                                         │
+│   🧱  Dynamic obstacle detection                               │
+│   👥  Multiplayer trick-shot mode                              │
+│   📚  Learning from previous successful shots                  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## 🛠️ How It Works
 
 <div align="center">
-┌─────────────┐
-│ 📷 Camera │
-└──────┬──────┘
-│
-▼
-┌─────────────┐
-│ 👁️ Computer │
-│ Vision │
-└──────┬──────┘
-│
-▼
-┌─────────────┐
-│ 🎯 Object │
-│ Detection │
-└──────┬──────┘
-│
-▼
-┌─────────────┐
-│ 🔬 Physics │
-│ Simulation │
-└──────┬──────┘
-│
-▼
-┌─────────────┐
-│ 📊 Trajectory│
-│ Prediction │
-└──────┬──────┘
-│
-▼
-┌─────────────┐
-│ 🧠 AI │
-│ Optimization│
-└──────┬──────┘
-│
-▼
-┌─────────────┐
-│ 🥽 AR │
-│ Rendering │
-└──────┬──────┘
-│
-▼
-┌─────────────┐
-│ 👤 User │
-│ follows │
-│ projected │
-│ path │
-└─────────────┘
 
-text
+```
+                    ┌─────────────┐
+                    │   📷 Camera  │
+                    └──────┬──────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  👁️ Computer  │
+                    │    Vision    │
+                    └──────┬──────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  🎯 Object   │
+                    │  Detection  │
+                    └──────┬──────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  🔬 Physics  │
+                    │  Simulation │
+                    └──────┬──────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  📊 Trajectory│
+                    │  Prediction  │
+                    └──────┬──────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  🧠 AI       │
+                    │ Optimization│
+                    └──────┬──────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  🥽 AR       │
+                    │  Rendering  │
+                    └──────┬──────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  👤 User     │
+                    │  follows    │
+                    │  projected  │
+                    │  path       │
+                    └─────────────┘
+
+```
 
 </div>
 
@@ -259,10 +269,10 @@ text
 
 | Layer | Technology | Icon |
 |:------|:-----------|:----:|
-| **Language** | Python | 🐍 |
-| **AR Engine** | Unity + AR Foundation / ARCore / ARKit | 🥽 |
-| **Computer Vision** | OpenCV | 📷 |
-| **AI Framework** | PyTorch | 🧠 |
+| **Language** | Python 3.11+ | 🐍 |
+| **AR Engine** | Unity 2022.3+ / AR Foundation 5.0+ | 🥽 |
+| **Computer Vision** | OpenCV 4.8+ | 📷 |
+| **AI Framework** | PyTorch 2.0+ | 🧠 |
 | **AR Scripting** | C# | ⚙️ |
 | **Physics** | Custom Physics Simulation | 📐 |
 
@@ -281,14 +291,15 @@ This wasn't built because I wanted another AI project for my portfolio.
 It started because a **fictional character** showed me a fascinating way of thinking.
 
 The challenge became:
-╔═══════════════════════════════════════════════════════════════════╗
-║ ║
-║ Can I recreate that feeling using real engineering ║
-║ instead of fantasy? ║
-║ ║
-╚═══════════════════════════════════════════════════════════════════╝
 
-text
+```
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                 ║
+║   Can I recreate that feeling using real engineering            ║
+║   instead of fantasy?                                          ║
+║                                                                 ║
+╚═══════════════════════════════════════════════════════════════════╝
+```
 
 That question eventually became **AR Trickshot AI**.
 
@@ -297,23 +308,25 @@ That question eventually became **AR Trickshot AI**.
 ## 🌱 What I Hope You Take Away
 
 <div align="center">
+
+```
 ┌─────────────────────────────────────────────────────────────────┐
-│ │
-│ You don't always need a completely original idea. │
-│ │
-│ Sometimes inspiration comes from a movie. │
-│ Sometimes from a game. │
-│ Sometimes from an anime or a novel. │
-│ │
-│ The important part is asking, │
-│ │
-│ "Can I build a real version of this?" │
-│ │
-│ That's exactly what I tried to do here. │
-│ │
+│                                                                 │
+│   You don't always need a completely original idea.            │
+│                                                                 │
+│   Sometimes inspiration comes from a movie.                    │
+│   Sometimes from a game.                                       │
+│   Sometimes from an anime or a novel.                          │
+│                                                                 │
+│   The important part is asking,                                │
+│                                                                 │
+│   "Can I build a real version of this?"                        │
+│                                                                 │
+│   That's exactly what I tried to do here.                      │
+│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 
-text
+```
 
 </div>
 
@@ -326,17 +339,18 @@ If this project inspires even **one person** to learn a little more physics, mat
 ## 📜 License
 
 <div align="center">
-╔═══════════════════════════════════════════════════════════════════╗
-║ ║
-║ MIT License ║
-║ ║
-║ Build something amazing with it. ║
-║ ║
-║ If you improve it, I'd genuinely love to see what you create.║
-║ ║
-╚═══════════════════════════════════════════════════════════════════╝
 
-text
+```
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                 ║
+║   MIT License                                                   ║
+║                                                                 ║
+║   Build something amazing with it.                              ║
+║                                                                 ║
+║   If you improve it, I'd genuinely love to see what you create.║
+║                                                                 ║
+╚═══════════════════════════════════════════════════════════════════╝
+```
 
 </div>
 
