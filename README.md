@@ -6,14 +6,14 @@
 
 <img src="https://i.imgur.com/placeholder-ar-hud.gif" alt="AR Trickshot Demo" width="80%">
 ╔═══════════════════════════════════════════════════════════════════╗
-║ ║
-║ What if mathematics could feel like magic? ║
-║ ║
-║ This is an experiment to answer one question: ║
-║ ║
-║ Can an AI calculate the perfect trick shot faster ║
-║ than a human can imagine it? ║
-║ ║
+║                                                                   ║
+║ What if mathematics could feel like magic?                        ║
+║                                                                   ║
+║ This is an experiment to answer one question:                     ║
+║                                                                   ║
+║ Can an AI calculate the perfect trick shot faster                 ║
+║ than a human can imagine it?                                      ║
+║                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════╝
 
 text
