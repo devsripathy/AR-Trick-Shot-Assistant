@@ -42,17 +42,17 @@ This project started because of **one scene** in the novel *Infinite Mage*.
 
 **One moment** completely changed the way I thought about engineering.
 
-> Shirone doesn't become amazing because of magic.  
-> He becomes amazing because he performs **incredibly complex calculations almost instantly**—predicting trajectories, velocity, timing, angles, and countless possibilities before making a move.
+> Mage doesn't become amazing because of magic.  
+> they becomes amazing because they performs **incredibly complex calculations almost instantly**—predicting trajectories, velocity, timing, angles, and countless possibilities before making a move.
 
-To everyone around him, it looks like **magic**.
+To everyone around them, it looks like **magic**.
 
 But underneath...
 
 ```
 ╔═══════════════════════════════════════════════════════════════════╗
 ║                                                                 ║
-║                         It's just mathematics.                  ║
+║                   It's just mathematics & Physics               ║
 ║                                                                 ║
 ╚═══════════════════════════════════════════════════════════════════╝
 ```
@@ -62,10 +62,6 @@ That idea stayed in my head for **days**.
 Eventually I asked myself,
 
 > *"What if a computer could perform those calculations in real time and show them through AR?"*
-
-**Not mana.**  
-**Not Spirit Zones.**  
-**Not fantasy.**
 
 Just **physics**, **computer vision**, **artificial intelligence**, and a **lot of mathematics**.
 
@@ -87,7 +83,7 @@ Instead of
 
 ```
 ╔═══════════════════════════════════════════════════════════════════╗
-║  "I think this might work..."                                   ║
+║  "I think this might work..."                                     ║
 ╚═══════════════════════════════════════════════════════════════════╝
 ```
 
