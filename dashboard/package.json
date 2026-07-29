@@ -1,0 +1,13 @@
+{
+  "name": "ar-trickshot-ai-dashboard",
+  "version": "1.0.0",
+  "description": "Companion simulator and diagnostic HUD for AR Trick Shot AI assistant",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "private": true
+}

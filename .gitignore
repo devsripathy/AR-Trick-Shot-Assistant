@@ -1,0 +1,12 @@
+dashboard/node_modules/
+**/node_modules/
+node_modules/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.DS_Store
+.vscode/
+.idea/
