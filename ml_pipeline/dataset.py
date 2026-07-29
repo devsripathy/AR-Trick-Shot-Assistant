@@ -32,11 +32,23 @@ class TrajectoryPhysicsSimulator:
             # F_gravity = m * g
             f_grav = self.mass * self.gravity
 
+        
+        min_distance = float('inf')
+        bounce_count = 0
+        max_bounces = 2
+        
+        for _ in range(max_steps):
+            speed = np.linalg.norm(vel)
+            
+            # F_gravity = m * g
+            f_grav = self.mass * self.gravity
+            
             # F_drag = -0.5 * Cd * rho * A * v * v_vec
             f_drag = np.zeros(3)
             if speed > 0.001:
                 f_drag = -0.5 * self.drag_coeff * self.air_density * self.cross_sectional_area * speed * vel
 
+            
             # F_magnus = Cl * rho * A * r * (omega x v)
             f_magnus = np.zeros(3)
             if speed > 0.001 and np.linalg.norm(omega) > 0.01:
@@ -49,6 +61,14 @@ class TrajectoryPhysicsSimulator:
             vel = vel + acc * dt
             pos = pos + vel * dt
 
+                
+            total_force = f_grav + f_drag + f_magnus
+            acc = total_force / self.mass
+            
+            # Euler-Cromer integration
+            vel = vel + acc * dt
+            pos = pos + vel * dt
+            
             # Check simple floor bounce (y = 0 is floor plane)
             if pos[1] < self.radius:
                 if bounce_count < max_bounces:
@@ -61,6 +81,7 @@ class TrajectoryPhysicsSimulator:
                 else:
                     break
 
+                    
             # Compute distance to target
             dist = np.linalg.norm(pos - target_pos)
             if dist < min_distance:
@@ -69,6 +90,10 @@ class TrajectoryPhysicsSimulator:
             if speed < 0.1 and _ > 10:
                 break
 
+                
+            if speed < 0.1 and _ > 10:
+                break
+                
         # Return success probability (1.0 if perfectly in target radius, scaling down with distance)
         success_prob = max(0.0, min(1.0, 1.0 - (min_distance / (target_radius * 3.0))))
         return success_prob, min_distance
@@ -85,6 +110,9 @@ class TrickShotDataset(Dataset):
 
         sim = TrajectoryPhysicsSimulator()
 
+        
+        sim = TrajectoryPhysicsSimulator()
+        
         for i in range(num_samples):
             # Randomize shooting conditions
             start_pos = [0.0, 1.5 + np.random.uniform(-0.5, 0.5), 0.0]
@@ -94,6 +122,11 @@ class TrickShotDataset(Dataset):
             dist = np.linalg.norm(np.array(target_pos) - np.array(start_pos))
             v_estimate = np.sqrt(9.81 * dist)
 
+            
+            # Standard ballistic speed estimation
+            dist = np.linalg.norm(np.array(target_pos) - np.array(start_pos))
+            v_estimate = np.sqrt(9.81 * dist)
+            
             # Generate random inputs centered around successful throws
             vel = [
                 np.random.normal((target_pos[0] - start_pos[0]) * 1.1, 1.5),
@@ -109,12 +142,17 @@ class TrickShotDataset(Dataset):
             # Run simulation
             success_prob, min_dist = sim.simulate(start_pos, vel, spin, target_pos)
 
+            
+            # Run simulation
+            success_prob, min_dist = sim.simulate(start_pos, vel, spin, target_pos)
+            
             # Calculate optimal adjustments (direction vector to target minus velocity)
             # A simple rule-based correction target for training
             target_direction = np.array(target_pos) - np.array(start_pos)
             optimal_v = target_direction * 1.5
             v_correction = optimal_v - np.array(vel)
 
+            
             # Input features: [start_pos(3), target_pos(3), velocity(3), spin(3)]
             x = np.concatenate([start_pos, target_pos, vel, spin])
             # Target output: [success_probability, correction_x, correction_y, correction_z]
@@ -123,6 +161,10 @@ class TrickShotDataset(Dataset):
             self.inputs.append(x.astype(np.float32))
             self.labels.append(y)
 
+            
+            self.inputs.append(x.astype(np.float32))
+            self.labels.append(y)
+            
         self.inputs = np.array(self.inputs)
         self.labels = np.array(self.labels)
 

@@ -8,6 +8,7 @@ class CSCVTracker {
         this.tolerance = 45; // Color match margin
         this.isTracking = false;
 
+        
         // Track history for velocity estimation
         this.history = [];
         this.maxHistory = 10;
@@ -52,6 +53,7 @@ class CSCVTracker {
             const centerX = totalX / matchedPixels;
             const centerY = totalY / matchedPixels;
 
+            
             // Approximate radius of detected circle based on match density
             const area = matchedPixels * 16; // Adjust for sampling step
             const estimatedRadius = Math.max(10, Math.sqrt(area / Math.PI));
@@ -83,12 +85,14 @@ class CSCVTracker {
     getVelocity() {
         if (this.history.length < 3) return { vx: 0, vy: 0 };
 
+        
         const first = this.history[0];
         const last = this.history[this.history.length - 1];
         const dt = (last.time - first.time) / 1000; // in seconds
 
         if (dt <= 0) return { vx: 0, vy: 0 };
 
+        
         return {
             vx: (last.x - first.x) / dt,
             vy: (last.y - first.y) / dt

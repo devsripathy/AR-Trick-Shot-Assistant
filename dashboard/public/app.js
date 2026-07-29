@@ -355,10 +355,10 @@ function calculateMageAlternativeTrajectories() {
     const config = state.levels[state.activeLevel];
     const solutions = [];
     const target = config.target;
-
+    
     // Perform standard searches with 3 different angle styles
     const launchAngles = [35, 45, 55];
-
+    
     for (let angle of launchAngles) {
         // Simple search loop to estimate speed to reach target
         const dx = target.x - state.ball.x;
@@ -461,6 +461,7 @@ function draw() {
         const dx = state.dragStart.x - state.dragCurrent.x;
         const dy = state.dragStart.y - state.dragCurrent.y;
 
+        
         const v0 = { x: dx * 0.15, y: dy * 0.15, z: 0 };
         const spinVal = parseFloat(el.inputSpin.value);
         const spinVector = { x: 0, y: 0, z: spinVal * 0.1 };
@@ -478,6 +479,7 @@ function draw() {
         // Compute preview probability score
         const previewSuccessProb = Math.max(0, Math.min(1.0, 1.0 - (minDistance / (config.target.r * 3.5))));
 
+        
         // Render dynamic neon path
         ctx.beginPath();
         previewPoints.forEach((p, idx) => {
@@ -485,6 +487,7 @@ function draw() {
             else ctx.lineTo(p.pos.x, p.pos.y);
         });
 
+        
         ctx.lineWidth = 4;
         ctx.strokeStyle = previewSuccessProb > 0.85 ? '#10b981' : (previewSuccessProb > 0.4 ? '#f59e0b' : '#ef4444');
         ctx.shadowBlur = 10;
@@ -507,6 +510,7 @@ function draw() {
         el.telemetrySpeed.innerText = `${curSpeed.toFixed(1)} m/s`;
         el.telemetryAngle.innerText = `${curAngle.toFixed(1)}°`;
 
+        
         // Feed live AI coach tips
         updateCoachAIAdvice(minDistance, previewSuccessProb);
 
@@ -540,6 +544,7 @@ function draw() {
         state.ball.x = point.pos.x;
         state.ball.y = point.pos.y;
 
+        
         // Draw real-time flying coordinate tracking lines
         ctx.strokeStyle = 'rgba(96, 165, 250, 0.3)';
         ctx.lineWidth = 1;
@@ -564,6 +569,7 @@ function draw() {
             ctx.font = '10px Share Tech Mono';
             ctx.fillText("BOUNCE IMPACT", state.ball.x + 15, state.ball.y - 10);
 
+            
             // Increment bounce counters
             const currentBounces = parseInt(el.telemetryBounces.innerText) || 0;
             el.telemetryBounces.innerText = `${currentBounces + 1} Bounces`;

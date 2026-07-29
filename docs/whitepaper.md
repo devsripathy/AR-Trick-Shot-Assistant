@@ -84,6 +84,7 @@ To provide instant success probability and optimal release vector adjustments, a
 
 * **Inputs ($12\text{-dim}$)**: `[start_pos(3), target_pos(3), velocity_vector(3), spin_vector(3)]`
 * **Network Layers**:
+* **Network Layers**: 
   * Linear ($12 \to 64$), BatchNorm1d, ReLU, Dropout
   * Linear ($64 \to 64$), BatchNorm1d, ReLU, Dropout
 * **Heads**:

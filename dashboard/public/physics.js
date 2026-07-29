@@ -8,6 +8,7 @@ class JSPhysicsSolver {
         this.gravity = { x: 0, y: -9.81, z: 0 };
         this.airDensity = 1.225; // kg/m^3
 
+        
         this.mass = 0.62;        // kg
         this.radius = 12;        // m (scaled for canvas representation)
         this.dragCoeff = 0.47;   // sphere
@@ -15,6 +16,7 @@ class JSPhysicsSolver {
         this.restitution = 0.82; // bounce elasticity
         this.surfaceFriction = 0.35; // friction loss
 
+        
         this.timeStep = 0.016;   // ~60 FPS dt
         this.maxSteps = 200;
         this.maxBounces = 3;
@@ -93,6 +95,7 @@ class JSPhysicsSolver {
                 x: this.mass * this.gravity.x,
                 // Negative physics gravity is downward, which is positive in canvas pixels
                 y: -this.mass * this.gravity.y * 10,
+                y: -this.mass * this.gravity.y * 10, 
                 z: this.mass * this.gravity.z
             };
 
@@ -178,6 +181,7 @@ class JSPhysicsSolver {
                         const crossedWall = (currentPos.x < obs.x && nextPos.x >= obs.x) || (currentPos.x > obs.x && nextPos.x <= obs.x);
                         const withinHeight = nextPos.y >= obs.yMin && nextPos.y <= obs.yMax;
 
+                        
                         if (crossedWall && withinHeight) {
                             if (bounceCount < this.maxBounces) {
                                 collisionOccurred = true;
