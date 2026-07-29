@@ -1,0 +1,86 @@
+/* AR Trickshot AI - Retro-Futuristic Cyber HUD Styling */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap');
+
+body {
+    font-family: 'Share Tech Mono', monospace;
+    background-color: #05050c;
+    color: #e2e8f0;
+}
+
+h1, h2, h3, .hud-header {
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Glowing Neon Borders */
+.neon-border-blue {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+    border: 1px solid rgba(59, 130, 246, 0.8);
+}
+
+.neon-border-magenta {
+    box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
+    border: 1px solid rgba(236, 72, 153, 0.8);
+}
+
+.neon-border-green {
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+    border: 1px solid rgba(34, 197, 94, 0.8);
+}
+
+/* Scanning / HUD Effects */
+.scanline {
+    background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.25) 50%
+    ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.06),
+        rgba(0, 255, 0, 0.02),
+        rgba(0, 0, 255, 0.06)
+    );
+    background-size: 100% 4px, 6px 100%;
+}
+
+@keyframes pulse-glowing {
+    0%, 100% {
+        opacity: 0.3;
+        box-shadow: 0 0 5px rgba(236, 72, 153, 0.2);
+    }
+    50% {
+        opacity: 0.9;
+        box-shadow: 0 0 20px rgba(236, 72, 153, 0.7);
+    }
+}
+
+.glow-pulsate {
+    animation: pulse-glowing 2s infinite ease-in-out;
+}
+
+/* Simulated Camera Background Animation */
+@keyframes cam-flicker {
+    0%, 100% { opacity: 0.96; }
+    50% { opacity: 1; }
+    93% { opacity: 0.98; }
+}
+
+.camera-noise {
+    animation: cam-flicker 0.15s infinite;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #090915;
+}
+::-webkit-scrollbar-thumb {
+    background: #3b82f6;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #ec4899;
+}

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Trickshot AI - Real-Time Trajectory HUD</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#05050c',
+                            blue: '#3b82f6',
+                            magenta: '#ec4899',
+                            cyan: '#06b6d4',
+                            green: '#22c55e',
+                            yellow: '#eab308'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-cyber-bg min-h-screen flex flex-col overflow-x-hidden scanline">
+
+    <!-- TOP HEADER -->
+    <header class="border-b border-cyber-blue/30 bg-cyber-bg/90 backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <span class="text-2xl text-cyber-magenta animate-pulse">⚡</span>
+            <div>
+                <h1 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyber-blue via-cyber-cyan to-cyber-magenta">
+                    𝔸ℝ 𝕋ℝ𝕀ℂ𝕂𝕊ℍ𝕆𝕋 𝔸𝕀
+                </h1>
+                <p class="text-xs text-cyber-cyan/70 tracking-widest uppercase">Infinite Mage Trajectory Calculator v2.4</p>
+            </div>
+        </div>
+
+        <!-- Real-time CPU stats -->
+        <div class="hidden md:flex items-center space-x-6 text-xs text-cyber-blue">
+            <div>
+                <span class="text-cyber-cyan">SWEEP_RATE:</span> <span id="stat-sweep">2,880 p/s</span>
+            </div>
+            <div>
+                <span class="text-cyber-cyan">CALC_LATENCY:</span> <span id="stat-latency">0.45 ms</span>
+            </div>
+            <div>
+                <span class="text-cyber-cyan">SYSTEM_STABILIZER:</span> <span class="text-cyber-green font-bold">ONLINE</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN INTERACTIVE LAYOUT -->
+    <main class="flex-1 max-w-[1600px] mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+        <!-- SIDE PANEL: SCENARIOS & HUD STATS -->
+        <div class="lg:col-span-1 flex flex-col space-y-6">
+
+            <!-- CHOOSE CHALLENGE -->
+            <div class="bg-black/40 rounded-xl p-5 border border-cyber-blue/20 backdrop-blur neon-border-blue flex-1 flex flex-col">
+                <h2 class="text-cyber-cyan font-bold text-sm mb-4 tracking-widest flex items-center">
+                    <span class="mr-2">📂</span> SELECTION MATRIX
+                </h2>
+
+                <div id="scenarios-list" class="space-y-3 overflow-y-auto flex-1 max-h-[260px] lg:max-h-[380px] pr-1">
+                    <!-- Scenario Cards will be loaded here dynamically -->
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-cyber-blue/10">
+                    <p class="text-xs text-slate-400 italic" id="scenario-description">
+                        Select a scenario to initialize the trajectory calculation matrix.
+                    </p>
+                </div>
+            </div>
+
+            <!-- AI HUD CALCULATOR STATS -->
+            <div class="bg-black/40 rounded-xl p-5 border border-cyber-magenta/20 backdrop-blur neon-border-magenta">
+                <h2 class="text-cyber-magenta font-bold text-sm mb-3 tracking-widest flex items-center">
+                    <span class="mr-2">🧠</span> AI TARGET ANALYSIS
+                </h2>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between items-center bg-cyber-magenta/5 p-2 rounded border border-cyber-magenta/10">
+                        <span class="text-slate-400">SUCCESS PROBABILITY:</span>
+                        <span id="ai-probability" class="font-bold text-cyber-magenta text-lg">0%</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-cyber-blue/5 p-2 rounded border border-cyber-blue/10">
+                        <span class="text-slate-400">SHOT DIFFICULTY:</span>
+                        <span id="ai-difficulty" class="font-bold text-cyber-blue text-sm uppercase">CALCULATING...</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-cyber-cyan/5 p-2 rounded border border-cyber-cyan/10">
+                        <span class="text-slate-400">BOUNCES CALCULATED:</span>
+                        <span id="ai-bounces" class="font-bold text-cyber-cyan">0</span>
+                    </div>
+
+                    <!-- Progress bar of optimal route accuracy -->
+                    <div class="pt-2">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">SHOT PRECISION ACCURACY</span>
+                            <span id="accuracy-percent" class="text-cyber-green font-bold">94%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                            <div id="accuracy-bar" class="bg-cyber-green h-1.5 transition-all duration-300" style="width: 94%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN VIEWPORT: INTERACTIVE CANVAS WITH CAMERA / GRID BACKGROUND -->
+        <div class="lg:col-span-2 flex flex-col space-y-4">
+
+            <div class="relative bg-slate-950 rounded-2xl overflow-hidden border border-cyber-blue/30 shadow-2xl flex-1 flex items-center justify-center min-h-[400px] lg:min-h-[500px]">
+
+                <!-- SIMULATED CAMERA / ENVIRONMENT NOISE LAYER -->
+                <div id="simulated-camera" class="absolute inset-0 z-0 opacity-20 pointer-events-none camera-noise">
+                    <!-- Subtle cyber grid structure representing the real-world tracking space -->
+                    <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1.5px,transparent_1.5px)] [background-size:24px_24px]"></div>
+                </div>
+
+                <!-- HUD TARGET RETICLES & GRAPHICS OVERLAY -->
+                <div class="absolute inset-0 z-10 pointer-events-none flex flex-col justify-between p-4">
+                    <!-- Top Corners HUD text -->
+                    <div class="flex justify-between text-[10px] text-cyber-cyan/60 tracking-wider">
+                        <span>SYS_RENDER: ACTIVE (WEBGL_2D)</span>
+                        <span>CUE_BALL_LOCK: OK</span>
+                    </div>
+
+                    <!-- Reticle in the exact center -->
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-25">
+                        <div class="w-32 h-32 border border-dashed border-cyber-cyan rounded-full flex items-center justify-center animate-spin" style="animation-duration: 20s;">
+                            <div class="w-16 h-16 border border-cyber-magenta rounded-full"></div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Corners HUD text -->
+                    <div class="flex justify-between text-[10px] text-cyber-magenta/60 tracking-wider">
+                        <span>AUTO_AIM: <span id="autoaim-status-hud" class="text-cyber-green font-bold">STANDBY</span></span>
+                        <span>BOUNDS_DETECT: RECT_MATRIX[800x500]</span>
+                    </div>
+                </div>
+
+                <!-- MAIN INTERACTIVE CANVAS -->
+                <canvas id="ar-canvas" width="800" height="500" class="relative z-20 w-full h-full cursor-crosshair max-w-full aspect-[8/5]"></canvas>
+            </div>
+
+            <!-- HUD BOTTOM BAR CONTROLS -->
+            <div class="bg-black/30 rounded-xl p-4 border border-cyber-blue/15 flex flex-wrap gap-4 items-center justify-between">
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-3">
+                    <button id="btn-fire" class="px-6 py-2 bg-gradient-to-r from-cyber-magenta to-pink-600 hover:from-pink-600 hover:to-cyber-magenta text-white font-bold rounded-lg border border-pink-400/40 shadow-lg shadow-cyber-magenta/20 transition transform active:scale-95 text-sm tracking-wider uppercase">
+                        🔥 Launch Trickshot
+                    </button>
+                    <button id="btn-reset" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-cyber-cyan hover:text-white font-medium rounded-lg border border-cyber-cyan/30 text-sm transition">
+                        🔄 Reset Shot
+                    </button>
+                    <button id="btn-auto-aim" class="px-4 py-2 bg-cyber-blue/20 hover:bg-cyber-blue/30 text-cyber-blue hover:text-white font-medium rounded-lg border border-cyber-blue/40 text-sm transition flex items-center">
+                        🎯 <span id="autoaim-btn-text" class="ml-1">Enable AI Auto-Aim</span>
+                    </button>
+                </div>
+
+                <!-- Background/Camera Simulator selection -->
+                <div class="flex items-center space-x-2 text-xs">
+                    <span class="text-slate-400">CAMERA MODE:</span>
+                    <select id="cam-mode" class="bg-slate-900 text-cyber-cyan border border-cyber-cyan/30 rounded px-2 py-1 focus:outline-none focus:border-cyber-magenta">
+                        <option value="cyber_grid">CYBER GRID (DEFAULT)</option>
+                        <option value="neon_pulse">NEON MATRIX PULSE</option>
+                        <option value="cosmic_vortex">COSMIC VORTEX</option>
+                        <option value="virtual_webcam">SIMULATED CAMERA STREAM</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: PHYSICS TWEAKS & CUE CONTROL -->
+        <div class="lg:col-span-1 flex flex-col space-y-6">
+
+            <!-- PARAMETERS TWEAKER -->
+            <div class="bg-black/40 rounded-xl p-5 border border-cyber-cyan/20 backdrop-blur neon-border-blue">
+                <h2 class="text-cyber-cyan font-bold text-sm mb-4 tracking-widest flex items-center">
+                    <span class="mr-2">⚙️</span> PHYSICAL VARIABLES
+                </h2>
+
+                <div class="space-y-4">
+                    <!-- Gravity Slider -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">DOWNWARD GRAVITY (Y)</span>
+                            <span id="val-gravity" class="text-cyber-cyan">0.00 G</span>
+                        </div>
+                        <input id="slide-gravity" type="range" min="0" max="1.5" step="0.1" value="0" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyber-cyan">
+                    </div>
+
+                    <!-- Friction Coefficient Slider -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">TABLE FRICTION DAMPING</span>
+                            <span id="val-friction" class="text-cyber-cyan">1.0x (Normal)</span>
+                        </div>
+                        <input id="slide-friction" type="range" min="0.2" max="2.0" step="0.1" value="1.0" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyber-cyan">
+                    </div>
+
+                    <!-- Force Magnitude Slider -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">LAUNCH FORCE MAGNITUDE</span>
+                            <span id="val-force" class="text-cyber-magenta font-bold">11.5 N</span>
+                        </div>
+                        <input id="slide-force" type="range" min="3" max="22" step="0.5" value="11.5" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyber-magenta">
+                    </div>
+
+                    <!-- Shot Angle Slider -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">AIMING AZIMUTH ANGLE</span>
+                            <span id="val-angle" class="text-cyber-cyan">35.0°</span>
+                        </div>
+                        <input id="slide-angle" type="range" min="0" max="359" step="1" value="35" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyber-cyan">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPIN & ENGLISH CONTROL PANEL -->
+            <div class="bg-black/40 rounded-xl p-5 border border-cyber-magenta/20 backdrop-blur neon-border-magenta flex flex-col items-center">
+                <h2 class="text-cyber-magenta font-bold text-sm mb-3 tracking-widest flex items-center w-full self-start">
+                    <span class="mr-2">🔄</span> CUE ENGLISH / SPIN
+                </h2>
+
+                <!-- Ball spin visualizer grid -->
+                <div class="relative w-28 h-28 border-2 border-cyber-magenta/40 rounded-full flex items-center justify-center bg-slate-900/80 shadow-inner my-2">
+                    <!-- crosshairs -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-full h-[1px] bg-cyber-magenta/20"></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="h-full w-[1px] bg-cyber-magenta/20"></div>
+                    </div>
+
+                    <!-- Glowing draggable reticle for spin point -->
+                    <div id="spin-reticle" class="absolute w-4 h-4 bg-cyber-magenta rounded-full border border-white shadow-lg cursor-grab active:cursor-grabbing transition-transform" style="transform: translate(0px, 0px);">
+                        <div class="w-full h-full rounded-full animate-ping bg-cyber-magenta opacity-75"></div>
+                    </div>
+                </div>
+
+                <div class="w-full space-y-2 mt-2 text-xs text-slate-400">
+                    <div class="flex justify-between">
+                        <span>SIDESPIN (ENGLISH):</span>
+                        <span id="val-spinx" class="text-cyber-magenta font-bold">0.0 (None)</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>TOP/BACKSPIN:</span>
+                        <span id="val-spiny" class="text-cyber-magenta font-bold">0.0 (None)</span>
+                    </div>
+                    <p class="text-[10px] text-center text-slate-500 mt-2">
+                        Click/Drag inside the ball circle to apply side English or draw/follow spin.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER WITH MAGE QUOTE -->
+    <footer class="border-t border-cyber-blue/20 bg-black/60 py-4 px-6 text-center text-xs text-slate-500">
+        <div class="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p>"Magic isn't breaking the laws of physics. It's understanding them so well that everyone else thinks you did."</p>
+            <p class="text-cyber-magenta">🌟 Designed for Infinite Mage Calculating Minds</p>
+        </div>
+    </footer>
+
+    <!-- CORE SCRIPTS -->
+    <script src="physics.js"></script>
+    <script src="ai.js"></script>
+    <script src="scenarios.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
