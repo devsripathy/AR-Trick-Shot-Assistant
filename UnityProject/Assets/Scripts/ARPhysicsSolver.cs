@@ -6,7 +6,8 @@ namespace ARTrickShot
 {
     /// <summary>
     /// High-precision 3D ballistic trajectory solver with air resistance, Magnus spin forces,
-    /// and multi-bounce environmental physics. Designed for real-time <10ms execution on mobile AR.
+    /// and multi-bounce environmental physics. Incorporates a 4th-order Runge-Kutta (RK4) integrator
+    /// and Continuous Collision Detection (CCD) via sub-stepping to prevent tunneling.
     /// </summary>
     public class ARPhysicsSolver : MonoBehaviour
     {
@@ -26,6 +27,7 @@ namespace ARTrickShot
         public int maxSteps = 200;
         public float timeStep = 0.02f;     // dt in seconds
         public int maxBounces = 3;
+        public int subSteps = 5;          // Sub-steps per timeStep for CCD
 
         /// <summary>
         /// Struct to hold individual trajectory point telemetry data.
@@ -41,8 +43,34 @@ namespace ARTrickShot
         }
 
         /// <summary>
-        /// Solves the full 3D ballistic trajectory using Euler-Cromer numerical integration.
-        /// Incorporates Gravity, Drag Force, Magnus Force (Spin), and Surface Collisions (Raycasts).
+        /// Computes the instantaneous 3D acceleration based on gravity, drag, and Magnus spin lift forces.
+        /// </summary>
+        public Vector3 GetAcceleration(Vector3 vel, Vector3 spin, float crossSectionalArea)
+        {
+            // Gravity: F_gravity = m * g
+            Vector3 F_gravity = mass * gravity;
+
+            // Air Resistance (Quadratic Drag): F_drag = -0.5 * Cd * rho * A * v * v_vec
+            float speed = vel.magnitude;
+            Vector3 F_drag = Vector3.zero;
+            if (speed > 0.001f)
+            {
+                F_drag = -0.5f * dragCoeff * airDensity * crossSectionalArea * speed * vel;
+            }
+
+            // Magnus Effect (Spin Force): F_magnus = Cl * rho * A * radius * (omega x v)
+            Vector3 F_magnus = Vector3.zero;
+            if (speed > 0.001f && spin.magnitude > 0.01f)
+            {
+                F_magnus = liftCoeff * airDensity * crossSectionalArea * radius * Vector3.Cross(spin, vel);
+            }
+
+            // a = F_total / m
+            return (F_gravity + F_drag + F_magnus) / mass;
+        }
+
+        /// <summary>
+        /// Solves the full 3D ballistic trajectory using RK4 numerical integration and CCD sub-stepping.
         /// </summary>
         public List<TrajectoryPoint> SolveTrajectory(Vector3 startPos, Vector3 startVel, Vector3 spinAngularVel)
         {
@@ -53,10 +81,9 @@ namespace ARTrickShot
             float currentTime = 0f;
             int bounceCount = 0;
 
-            // Pre-calculate physical areas for drag
             float crossSectionalArea = Mathf.PI * radius * radius;
 
-            // Always add the starting point
+            // Add the starting point
             points.Add(new TrajectoryPoint
             {
                 position = currentPos,
@@ -67,99 +94,99 @@ namespace ARTrickShot
                 normal = Vector3.zero
             });
 
+            float dt = timeStep / subSteps;
+
             for (int i = 0; i < maxSteps; i++)
             {
-                // 1. Calculate Forces
-                // Gravity: Fg = m * g
-                Vector3 F_gravity = mass * gravity;
+                bool maxBouncesReached = false;
 
-                // Air Resistance (Quadratic Drag): F_drag = -0.5 * Cd * rho * A * v * v_unit
-                float speed = currentVel.magnitude;
-                Vector3 F_drag = Vector3.zero;
-                if (speed > 0.001f)
+                // Perform sub-stepping for CCD
+                for (int s = 0; s < subSteps; s++)
                 {
-                    F_drag = -0.5f * dragCoeff * airDensity * crossSectionalArea * speed * currentVel;
-                }
+                    // Run 4th-Order Runge-Kutta (RK4) integration for this sub-step
+                    // k1
+                    Vector3 k1_v = GetAcceleration(currentVel, currentSpin, crossSectionalArea);
+                    Vector3 k1_x = currentVel;
 
-                // Magnus Effect (Spin Force): F_magnus = Cl * rho * A * radius * (omega x v)
-                // Represents lateral curve or backspin lift based on rotation
-                Vector3 F_magnus = Vector3.zero;
-                if (speed > 0.001f && currentSpin.magnitude > 0.01f)
-                {
-                    F_magnus = liftCoeff * airDensity * crossSectionalArea * radius * Vector3.Cross(currentSpin, currentVel);
-                }
+                    // k2
+                    Vector3 k2_v = GetAcceleration(currentVel + k1_v * (dt / 2f), currentSpin, crossSectionalArea);
+                    Vector3 k2_x = currentVel + k1_v * (dt / 2f);
 
-                // Total Acceleration: a = F_total / m
-                Vector3 acceleration = (F_gravity + F_drag + F_magnus) / mass;
+                    // k3
+                    Vector3 k3_v = GetAcceleration(currentVel + k2_v * (dt / 2f), currentSpin, crossSectionalArea);
+                    Vector3 k3_x = currentVel + k2_v * (dt / 2f);
 
-                // 2. Numerical Integration Step (Euler-Cromer)
-                Vector3 nextVel = currentVel + acceleration * timeStep;
-                Vector3 displacement = nextVel * timeStep;
-                Vector3 nextPos = currentPos + displacement;
+                    // k4
+                    Vector3 k4_v = GetAcceleration(currentVel + k3_v * dt, currentSpin, crossSectionalArea);
+                    Vector3 k4_x = currentVel + k3_v * dt;
 
-                // 3. Environment Collision Detection (3D Raycast for bounces)
-                float checkDist = displacement.magnitude;
-                if (checkDist > 0.0001f)
-                {
-                    Ray ray = new Ray(currentPos, displacement.normalized);
-                    RaycastHit hit;
+                    // Update states via weighted average
+                    Vector3 nextVel = currentVel + (k1_v + 2f * k2_v + 2f * k3_v + k4_v) * (dt / 6f);
+                    Vector3 displacement = (k1_x + 2f * k2_x + 2f * k3_x + k4_x) * (dt / 6f);
+                    Vector3 nextPos = currentPos + displacement;
 
-                    // Spherecast or raycast against physics-colliders in the environment
-                    if (Physics.Raycast(ray, out hit, checkDist + radius))
+                    // Continuous Collision Detection (CCD) using Raycast / Spherecast
+                    float checkDist = displacement.magnitude;
+                    if (checkDist > 0.0001f)
                     {
-                        if (bounceCount < maxBounces)
+                        Ray ray = new Ray(currentPos, displacement.normalized);
+                        RaycastHit hit;
+
+                        if (Physics.Raycast(ray, out hit, checkDist + radius))
                         {
-                            // Calculate bounce position at contact boundary
-                            currentPos = hit.point + hit.normal * radius;
-
-                            // Normal velocity component
-                            Vector3 v_normal = Vector3.Project(nextVel, hit.normal);
-                            // Tangential velocity component
-                            Vector3 v_tangent = nextVel - v_normal;
-
-                            // Apply elasticity (restitution) to normal velocity
-                            Vector3 next_v_normal = -v_normal * restitution;
-
-                            // Apply friction to tangential velocity
-                            Vector3 next_v_tangent = v_tangent * (1f - surfaceFriction);
-
-                            // Incorporate spin bounce interaction
-                            // Forward spin adds tangential velocity upon floor collision (transfer of angular momentum)
-                            Vector3 spinTransfer = Vector3.Cross(currentSpin, hit.normal) * radius * 0.4f;
-                            currentVel = next_v_normal + next_v_tangent + spinTransfer;
-
-                            // Update spin after impact (friction dampens rotational kinetic energy)
-                            currentSpin *= (1f - surfaceFriction * 0.5f);
-
-                            bounceCount++;
-                            currentTime += (hit.distance / speed);
-
-                            points.Add(new TrajectoryPoint
+                            if (bounceCount < maxBounces)
                             {
-                                position = currentPos,
-                                velocity = currentVel,
-                                spin = currentSpin,
-                                time = currentTime,
-                                isBounce = true,
-                                normal = hit.normal
-                            });
+                                // Calculate bounce position at contact boundary
+                                currentPos = hit.point + hit.normal * radius;
 
-                            // Skip standard integration for this step to prevent double collision
-                            continue;
-                        }
-                        else
-                        {
-                            // Max bounces reached, stop prediction
-                            break;
+                                // Normal and tangential velocity components
+                                Vector3 v_normal = Vector3.Project(nextVel, hit.normal);
+                                Vector3 v_tangent = nextVel - v_normal;
+
+                                // Apply coefficient of restitution and friction
+                                Vector3 next_v_normal = -v_normal * restitution;
+                                Vector3 next_v_tangent = v_tangent * (1f - surfaceFriction);
+
+                                // Spin bounce interaction (transfer of angular momentum)
+                                Vector3 spinTransfer = Vector3.Cross(currentSpin, hit.normal) * radius * 0.4f;
+                                currentVel = next_v_normal + next_v_tangent + spinTransfer;
+
+                                // Rotational friction dampening
+                                currentSpin *= (1f - surfaceFriction * 0.5f);
+
+                                bounceCount++;
+                                currentTime += (hit.distance / (currentVel.magnitude + 0.001f));
+
+                                points.Add(new TrajectoryPoint
+                                {
+                                    position = currentPos,
+                                    velocity = currentVel,
+                                    spin = currentSpin,
+                                    time = currentTime,
+                                    isBounce = true,
+                                    normal = hit.normal
+                                });
+
+                                // Break sub-stepping loop to recalculate after bounce
+                                break;
+                            }
+                            else
+                            {
+                                maxBouncesReached = true;
+                                break;
+                            }
                         }
                     }
+
+                    // Advance sub-step state
+                    currentPos = nextPos;
+                    currentVel = nextVel;
+                    currentTime += dt;
                 }
 
-                // Advance standard step
-                currentPos = nextPos;
-                currentVel = nextVel;
-                currentTime += timeStep;
+                if (maxBouncesReached) break;
 
+                // Record step trajectory point
                 points.Add(new TrajectoryPoint
                 {
                     position = currentPos,

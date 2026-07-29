@@ -8,14 +8,14 @@
 
 ```
 ╔═══════════════════════════════════════════════════════════════════╗
-║                                                                 ║
-║   What if mathematics could feel like magic?                    ║
-║                                                                 ║
-║   This is an experiment to answer one question:                ║
-║                                                                 ║
-║   Can an AI calculate the perfect trick shot faster            ║
-║   than a human can imagine it?                                 ║
-║                                                                 ║
+║                                                                   ║
+║   What if mathematics could feel like magic?                      ║
+║                                                                   ║
+║   This is an experiment to answer one question:                   ║
+║                                                                   ║
+║   Can an AI calculate the perfect trick shot faster              ║
+║   than a human can imagine it?                                    ║
+║                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════╝
 ```
 
@@ -30,176 +30,89 @@
 
 ---
 
+## 🌟 Current Status
+
+AR Trickshot AI features a cohesive set of tools for physics simulation, tracking, and deep learning across multiple platforms:
+1. **Working 2D Cyberpunk Trajectory Simulator (Web):** Fully functional, web-based companion HUD with real-time vector inputs, customizable physics coefficients (mass, friction, drag, spin, gravity), preset scenarios, and a built-in computer vision (CV) color-based webcam tracker.
+2. **Solid 3D Ballistic + Magnus Solver (C# / Unity):** Multi-bounce high-precision trajectory solver implementing air resistance, gravity, Magnus lift forces, and collision mechanics.
+3. **Starter PyTorch Dual-Head Coaching Network + ONNX Export:** Machine learning pipeline including dataset generator, trainer, and ONNX conversion script to predict success probability and recommended trajectory adjustments.
+4. **Runnable Unity AR Scaffolding:** A functional Unity 2022.3 project equipped with AR Foundation dependencies, AR physics solver integration, 3D line rendering, and simulated editor-mode operation.
+
+---
+
+## 🕹️ Quick Start: How to Run
+
+### 1. Web Dashboard & Interactive Simulator
+The web dashboard provides an interactive, client-side visual simulation with the 3D-aligned physical solver, real-time telemetry, and optional MediaPipe Hands color-based tracking overlay.
+
+**To run the Dashboard locally:**
+```bash
+# Navigate to the dashboard directory
+cd dashboard
+
+# Install necessary server dependencies (Express)
+npm install
+
+# Start the local companion node server
+npm start
+```
+*Once running, navigate to **http://localhost:3000** in your web browser to play, interact, and throw balls.*
+
+---
+
+### 2. Unity 2022.3 Project (Simulation & AR Deployment)
+A fully wired AR scene scaffolding that integrates our C# physical solvers, trajectory rendering pipelines, and camera-telemetry tracking filters.
+
+**To run in the Unity Editor:**
+1. Open **Unity Hub** and select **Add** -> **Add project from disk**. Select the `UnityProject` directory.
+2. Ensure you are using **Unity 2022.3 LTS** (e.g., `2022.3.20f1`).
+3. Open `Assets/Scenes/ARTrickShotScene.unity` (or configure a scene with `ARTrickShotManager` coordinating system component scripts).
+4. Assign target anchors (such as a target Transform representing the hoop/cup) and start release anchors.
+5. Press **Play** in the Unity Editor.
+6. Press the **Space** key to trigger a simulated ball release. The Editor will dynamically execute the 3D ballistic solver, render the glowing landing path, and log real-time precision telemetry onto the coaching HUD.
+
+---
+
 ## 🌟 Where This Idea Came From
 
-<div align="center">
-  <img src="https://i.imgur.com/placeholder-infinite-mage.gif" alt="Infinite Mage Inspiration" width="60%">
-</div>
-
-<br>
-
 This project started because of **one scene** in the novel *Infinite Mage*.
+*Infinite Mage* explores how incredible calculation speeds can look like pure magic to outside observers. Underneath, it is just mathematics and physics!
 
-**One moment** completely changed the way I thought about engineering.
-
-> Mage doesn't become amazing because of magic.  
-> they becomes amazing because they performs **incredibly complex calculations almost instantly**—predicting trajectories, velocity, timing, angles, and countless possibilities before making a move.
-
-To everyone around them, it looks like **magic**.
-
-But underneath...
-
-```
-╔═══════════════════════════════════════════════════════════════════╗
-║                                                                 ║
-║                   It's just mathematics & Physics               ║
-║                                                                 ║
-╚═══════════════════════════════════════════════════════════════════╝
-```
-
-That idea stayed in my head for **days**.
-
-Eventually I asked myself,
-
-> *"What if a computer could perform those calculations in real time and show them through AR?"*
-
-Just **physics**, **computer vision**, **artificial intelligence**, and a **lot of mathematics**.
-
-This project is my attempt to bring that idea into the **real world**.
+Can we calculate a trickshot's perfect path instantly and project it using augmented reality?
 
 ---
 
 ## 🎯 Project Goal
 
-Every trick shot follows the **same rules**.
-
-**Physics never changes.**
-
-Humans simply **estimate** those rules from experience.
-
-My idea is to let **AI perform those calculations continuously** while I focus on taking the shot.
-
-Instead of
-
-```
-╔═══════════════════════════════════════════════════════════════════╗
-║  "I think this might work..."                                     ║
-╚═══════════════════════════════════════════════════════════════════╝
-```
-
-the system tells me
-
-```
-╔═══════════════════════════════════════════════════════════════════╗
-║  "If you shoot here with this much force,                       ║
-║   this is exactly what will happen."                            ║
-╚═══════════════════════════════════════════════════════════════════╝
-```
-
-The experience almost feels like having the **calculation ability from *Infinite Mage***, except everything is happening through an **AR display**.
+Humans simple estimate projectile paths from experience. My idea is to let AI calculate those trajectories continuously and guide us in real time.
 
 ---
 
 ## 🔢 The Math Behind It
 
-<div align="center">
+At its core, this project uses a 3D ballistic numerical integrator with Magnus lift force and quadratic drag:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│   At its core, this project isn't magic.                       │
-│                                                                 │
-│   It's just a lot of physics happening very quickly.           │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+$$\mathbf{F}_{\text{net}} = \mathbf{F}_{\text{gravity}} + \mathbf{F}_{\text{drag}} + \mathbf{F}_{\text{magnus}}$$
 
-</div>
+Where:
+- **Gravity:** $\mathbf{F}_{\text{gravity}} = m \mathbf{g}$
+- **Quadratic Drag:** $\mathbf{F}_{\text{drag}} = -\frac{1}{2} C_d \rho A v \mathbf{v}$
+- **Magnus Lift Force:** $\mathbf{F}_{\text{magnus}} = C_l \rho A r (\boldsymbol{\omega} \times \mathbf{v})$
 
-### The system constantly measures things like:
-
-| Symbol | Meaning |
-|:------:|:--------|
-| 📍 | Position of the object |
-| 📏 | Distance |
-| 🎯 | Direction |
-| 💨 | Initial force |
-| ⚡ | Velocity |
-| 🌍 | Gravity |
-| 🪞 | Reflection from walls or cushions |
-| 🔄 | Spin (planned) |
-
-### Using these values, the AI predicts how the object will move over time.
-
-**The basic motion follows:**
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│   Position = InitialPosition + Velocity × t + ½ × Acceleration × t² │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**For bank shots it also applies:**
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│   Angle of Incidence = Angle of Reflection                     │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### The interesting part isn't solving one equation.
-
-The interesting part is solving **thousands of possible trajectories** every second, comparing them, and choosing the path with the **highest probability of success**.
-
-Finally, that prediction is **rendered directly into the real world using AR**.
-
-So instead of **imagining** the path...
-
-> **You can actually see it.**
+A Runge-Kutta 4th Order (RK4) integrator is employed to compute highly stable trajectories even under extreme release speeds, combined with continuous collision detection (sub-stepping) to prevent tunneling.
 
 ---
 
 ## ✨ Features
 
-<div align="center">
-
-| 🎯 | 🧠 | 🥽 |
-|:--:|:--:|:--:|
-| **Real-Time Trajectory Prediction** | **AI-Assisted Physics** | **Augmented Reality Guidance** |
-| Predicts where the object will travel before you even take the shot | Uses computer vision together with physics simulation to calculate possible outcomes continuously | Displays the predicted path directly on top of the real world |
-
-| ⚡ | 🎲 | 📈 |
-|:--:|:--:|:--:|
-| **Live Updates** | **Multi-Bounce Prediction** | **Shot Difficulty** |
-| Move your hand. Change your angle. Adjust your position. The prediction updates instantly. | Supports complex bank shots involving multiple reflections | Shows how difficult a shot is and estimates the probability of success |
-
-</div>
-
----
-
-## 🚀 Future Plans
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│   🔄  Spin prediction                                          │
-│   🇬🇧  English effects                                         │
-│   🧱  Dynamic obstacle detection                               │
-│   👥  Multiplayer trick-shot mode                              │
-│   📚  Learning from previous successful shots                  │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+- **Real-Time Trajectory Prediction:** Computes multi-bounce trajectories in under 10ms.
+- **AI-Assisted Coaching:** Dual-head PyTorch neural network estimates shot success probability and real-time velocity corrections.
+- **Augmented Reality Rendering:** Lines and landing zones displayed in 3D (Unity) or 2D (Web Dashboard).
+- **Webcam Tracking (CV):** Built-in computer vision color tracker in JS with optional MediaPipe Hands integration to trace ball motion.
 
 ---
 
 ## 🛠️ How It Works
-
-<div align="center">
 
 ```
                     ┌─────────────┐
@@ -244,122 +157,35 @@ So instead of **imagining** the path...
                            │
                            ▼
                     ┌─────────────┐
-                    │  👤 User     │
+                    │  🥽 User     │
                     │  follows    │
                     │  projected  │
                     │  path       │
                     └─────────────┘
-
 ```
 
-</div>
+---
 
-> Everything happens **continuously** while the camera is running.  
-> The prediction changes in **real time** as the environment changes.
+## 🗺️ Roadmap
+
+- [x] **RK4 Integration & CCD:** Implement high-fidelity Runge-Kutta 4th order integrator with continuous sub-stepping collision checks to avoid tunneling.
+- [x] **Web & Unity Solver Sync:** Unified physical logic shared between C#, JavaScript, and Python modeling environments.
+- [x] **Synthetic Trajectory Generator:** Scale dataset generation to thousands of unique paths with varying release speed and spin parameters.
+- [x] **TFLite & CoreML Export:** Multi-format conversion pipeline from PyTorch/ONNX to mobile runtimes.
+- [ ] **On-Device AR Foundation Tracking:** Complete native object tracking and spatial anchor integration.
+- [ ] **Dynamic Obstacle Meshing:** Real-time LiDAR spatial mapping for arbitrary room obstacles.
 
 ---
 
 ## 💻 Tech Stack
 
-<div align="center">
-
-| Layer | Technology | Icon |
-|:------|:-----------|:----:|
-| **Language** | Python 3.11+ | 🐍 |
-| **AR Engine** | Unity 2022.3+ / AR Foundation 5.0+ | 🥽 |
-| **Computer Vision** | OpenCV 4.8+ | 📷 |
-| **AI Framework** | PyTorch 2.0+ | 🧠 |
-| **AR Scripting** | C# | ⚙️ |
-| **Physics** | Custom Physics Simulation | 📐 |
-
-</div>
-
----
-
-## 🚀 Why I Built This
-
-I love projects that make people stop and ask,
-
-> *"Wait... how did you even think of this?"*
-
-This wasn't built because I wanted another AI project for my portfolio.
-
-It started because a **fictional character** showed me a fascinating way of thinking.
-
-The challenge became:
-
-```
-╔═══════════════════════════════════════════════════════════════════╗
-║                                                                 ║
-║   Can I recreate that feeling using real engineering            ║
-║   instead of fantasy?                                          ║
-║                                                                 ║
-╚═══════════════════════════════════════════════════════════════════╝
-```
-
-That question eventually became **AR Trickshot AI**.
-
----
-
-## 🌱 What I Hope You Take Away
-
-<div align="center">
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│   You don't always need a completely original idea.            │
-│                                                                 │
-│   Sometimes inspiration comes from a movie.                    │
-│   Sometimes from a game.                                       │
-│   Sometimes from an anime or a novel.                          │
-│                                                                 │
-│   The important part is asking,                                │
-│                                                                 │
-│   "Can I build a real version of this?"                        │
-│                                                                 │
-│   That's exactly what I tried to do here.                      │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-
-```
-
-</div>
-
-If this project inspires even **one person** to learn a little more physics, mathematics, computer vision, or augmented reality...
-
-> **then it has already succeeded.**
+- **Python / PyTorch:** Custom training loop and dual-head regression architecture.
+- **ONNX, CoreML, TFLite:** Cross-platform edge deployment.
+- **Unity 2022.3 / AR Foundation:** Simulated editor execution and deployment on real devices.
+- **HTML5 Canvas / Vanilla JS:** Zero-dependency companion dashboard.
 
 ---
 
 ## 📜 License
 
-<div align="center">
-
-```
-╔═══════════════════════════════════════════════════════════════════╗
-║                                                                 ║
-║   MIT License                                                   ║
-║                                                                 ║
-║   Build something amazing with it.                              ║
-║                                                                 ║
-║   If you improve it, I'd genuinely love to see what you create.║
-║                                                                 ║
-╚═══════════════════════════════════════════════════════════════════╝
-```
-
-</div>
-
----
-
-<div align="center">
-
-### ⚡ *"Magic isn't breaking the laws of physics. It's understanding them so well that everyone else thinks you did."* ⚡
-
-<br>
-
-<img src="https://i.imgur.com/placeholder-qr-code.gif" alt="QR Code" width="150">
-
-**⭐ Drop a star if this inspired you to build something weird and wonderful.** ⭐
-
-</div>
+This project is licensed under the MIT License.
