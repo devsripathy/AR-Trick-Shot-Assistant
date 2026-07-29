@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Trick Shot Assistant — Infinite calculation HUD</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom Cyberpunk HUD Styles -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        .hud-border {
+            border: 1px solid #3b82f6;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.25);
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(8px);
+        }
+
+        .neon-text-blue {
+            color: #60a5fa;
+            text-shadow: 0 0 8px rgba(96, 165, 250, 0.6);
+        }
+
+        .neon-text-green {
+            color: #34d399;
+            text-shadow: 0 0 8px rgba(52, 211, 153, 0.6);
+        }
+
+        .neon-text-red {
+            color: #f87171;
+            text-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
+        }
+
+        .neon-text-purple {
+            color: #c084fc;
+            text-shadow: 0 0 8px rgba(192, 132, 252, 0.6);
+        }
+
+        /* Animated Grid Overlay */
+        .hud-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+        }
+
+        /* Pulse Animations */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.6); }
+        }
+
+        .pulse-card {
+            animation: pulse-glow 4s infinite;
+        }
+
+        /* Success circular ring gauge */
+        .circle-gauge {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 hud-grid">
+
+    <!-- Header HUD -->
+    <header class="max-w-7xl mx-auto mb-4 flex flex-col md:flex-row justify-between items-center p-3 hud-border rounded-lg pulse-card border-blue-500">
+        <div class="flex items-center gap-3">
+            <span class="w-4 h-4 bg-blue-500 rounded-full animate-ping"></span>
+            <div>
+                <h1 class="text-2xl font-bold tracking-widest text-blue-400">⚡ AR TRICKSHOT AI ⚡</h1>
+                <p class="text-xs text-gray-400">PRODUCTION COACHING SYSTEM | INFINITE MAGE CALCULATOR v1.0</p>
+            </div>
+        </div>
+        <div class="flex gap-4 mt-2 md:mt-0 text-sm">
+            <div class="px-3 py-1 bg-blue-900/30 rounded border border-blue-500/40">
+                <span class="text-gray-400">CAMERA:</span> <span id="camera-status" class="neon-text-blue">DISCONNECTED</span>
+            </div>
+            <div class="px-3 py-1 bg-green-900/30 rounded border border-green-500/40">
+                <span class="text-gray-400">FPS:</span> <span id="fps-display" class="neon-text-green">60.0</span>
+            </div>
+            <div class="px-3 py-1 bg-purple-900/30 rounded border border-purple-500/40">
+                <span class="text-gray-400">SOLVER:</span> <span class="neon-text-purple">1.2ms (ACTIVE)</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Grid Content -->
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-4">
+
+        <!-- Column 1: Telemetry Data HUD -->
+        <section class="lg:col-span-1 flex flex-col gap-4">
+            <div class="hud-border rounded-lg p-4 border-blue-500/60">
+                <h2 class="text-lg font-bold text-blue-400 border-b border-blue-500/30 pb-2 mb-3">📍 TELEMETRY READOUT</h2>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between items-center bg-gray-900/40 p-2 rounded border border-gray-800">
+                        <span class="text-gray-400">LAUNCH SPEED:</span>
+                        <span id="telemetry-speed" class="text-white font-bold">0.0 m/s</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-900/40 p-2 rounded border border-gray-800">
+                        <span class="text-gray-400">LAUNCH ANGLE:</span>
+                        <span id="telemetry-angle" class="text-white font-bold">0.0°</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-900/40 p-2 rounded border border-gray-800">
+                        <span class="text-gray-400">SPIN MAGNITUDE:</span>
+                        <span id="telemetry-spin" class="text-white font-bold">0.0 RPM</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-900/40 p-2 rounded border border-gray-800">
+                        <span class="text-gray-400">AERODYNAMIC DRAG:</span>
+                        <span id="telemetry-drag" class="neon-text-purple font-bold">0.00 N</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-900/40 p-2 rounded border border-gray-800">
+                        <span class="text-gray-400">MAGNUS LIFT:</span>
+                        <span id="telemetry-magnus" class="neon-text-blue font-bold">0.00 N</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-900/40 p-2 rounded border border-gray-800">
+                        <span class="text-gray-400">BOUNCE LIMITS:</span>
+                        <span id="telemetry-bounces" class="text-yellow-400 font-bold">0 Bounces</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calibration Drawer -->
+            <div class="hud-border rounded-lg p-4 border-blue-500/60">
+                <h2 class="text-lg font-bold text-blue-400 border-b border-blue-500/30 pb-2 mb-3">🧱 CALIBRATION DRAWER</h2>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <label class="block text-gray-400 mb-1">SELECT BALL TYPE:</label>
+                        <select id="preset-object" class="w-full bg-gray-950 border border-blue-500/30 p-2 rounded text-white focus:outline-none focus:border-blue-400">
+                            <option value="basketball">Basketball (0.62kg, 12cm)</option>
+                            <option value="soccer">Soccer Ball (0.43kg, 11cm)</option>
+                            <option value="pingpong">Ping Pong Ball (2.7g, 2cm)</option>
+                            <option value="golf">Golf Chip (45g, 2.1cm)</option>
+                            <option value="frisbee">Frisbee (175g, 13.5cm)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">SELECT BOUNCE SURFACE:</label>
+                        <select id="preset-surface" class="w-full bg-gray-950 border border-blue-500/30 p-2 rounded text-white focus:outline-none focus:border-blue-400">
+                            <option value="wood">Hardwood Court (e=0.82)</option>
+                            <option value="concrete">Concrete Ground (e=0.65)</option>
+                            <option value="grass">Grass Turf (e=0.30)</option>
+                            <option value="table">Ping Pong Table (e=0.90)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-gray-400">SPIN CONTROL (RPM):</label>
+                            <span id="label-spin-input" class="neon-text-blue">0 RPM</span>
+                        </div>
+                        <input type="range" id="input-spin" min="-1200" max="1200" step="50" value="0" class="w-full accent-blue-500">
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-gray-400">ENVIRONMENT GRAVITY:</label>
+                            <span id="label-gravity" class="neon-text-blue">-9.81 m/s²</span>
+                        </div>
+                        <input type="range" id="input-gravity" min="-20" max="-1" step="0.5" value="-9.81" class="w-full accent-blue-500">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Columns 2-3: Interactive Canvas & Main HUD -->
+        <section class="lg:col-span-2 flex flex-col gap-4">
+            <!-- Viewport Port -->
+            <div class="hud-border rounded-lg border-blue-500/60 overflow-hidden relative">
+                <!-- Telemetry overlay -->
+                <div class="absolute top-2 left-2 z-10 bg-gray-950/80 px-3 py-1 rounded text-xs border border-blue-500/30 flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
+                    <span id="viewport-tracking-text">6-DoF CALIBRATION: ONLINE</span>
+                </div>
+
+                <div class="absolute top-2 right-2 z-10 flex gap-2">
+                    <button id="btn-toggle-camera" class="bg-blue-600/60 hover:bg-blue-600 px-3 py-1 rounded text-xs border border-blue-500 transition-all font-bold">USE LIVE CAMERA</button>
+                    <button id="btn-clear-canvas" class="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded text-xs border border-gray-600 transition-all font-bold">RESET BALL</button>
+                </div>
+
+                <!-- Simulation/Video Canvas -->
+                <div class="w-full bg-slate-950 relative" style="height: 480px;">
+                    <!-- Raw webcam streaming container -->
+                    <video id="webcam-stream" class="hidden absolute top-0 left-0 w-full h-full object-cover"></video>
+                    <!-- Core canvas visualizer -->
+                    <canvas id="ar-viewport" class="w-full h-full block absolute top-0 left-0 cursor-crosshair"></canvas>
+                </div>
+
+                <!-- Bottom Coaching Banner -->
+                <div class="bg-blue-900/30 border-t border-blue-500/30 p-3 flex justify-between items-center text-sm">
+                    <span class="text-blue-400 font-bold">💡 DRAG & RELEASE ON BALL TO THROW AND PRACTICE IN 3D SPACE</span>
+                    <div class="flex items-center gap-3">
+                        <label class="text-xs text-gray-400 font-bold">INFINITE MAGE CALCULATION MODE:</label>
+                        <input type="checkbox" id="checkbox-mage-mode" class="w-4 h-4 accent-purple-500 cursor-pointer" checked>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action buttons / Challenge Description -->
+            <div class="hud-border rounded-lg p-4 border-blue-500/60">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="text-lg font-bold text-blue-400 border-b border-blue-500/30 pb-1">🏆 ACTIVE CHALLENGE TARGET</h2>
+                    <span id="challenge-status" class="px-2 py-0.5 bg-red-900/40 border border-red-500 text-red-400 text-xs rounded font-bold animate-pulse">NOT LANDED</span>
+                </div>
+                <h3 id="challenge-title" class="text-md font-bold text-white mb-1">Level 1: Direct Basketball Free-Throw</h3>
+                <p id="challenge-desc" class="text-xs text-gray-400 leading-relaxed">Throw the ball directly into the green target hoop on the right. Calibrate your angle to about 45 degrees and speed around 7 m/s to combat air drag and make a clean swish.</p>
+            </div>
+        </section>
+
+        <!-- Column 4: AI Coaching & Success meter -->
+        <section class="lg:col-span-1 flex flex-col gap-4">
+            <!-- Success Meter Panel -->
+            <div class="hud-border rounded-lg p-4 border-blue-500/60 flex flex-col items-center justify-center">
+                <h2 class="text-lg font-bold text-blue-400 border-b border-blue-500/30 pb-2 mb-3 w-full text-center">🎯 LANDING RATIO</h2>
+                
+                <!-- Circular SVG gauge -->
+                <div class="relative w-40 h-40 flex items-center justify-center mb-2">
+                    <svg class="w-full h-full">
+                        <circle cx="80" cy="80" r="70" class="stroke-gray-800" stroke-width="8" fill="transparent"/>
+                        <circle id="gauge-ring" cx="80" cy="80" r="70" class="circle-gauge stroke-blue-500" stroke-width="10" fill="transparent" stroke-dasharray="440" stroke-dashoffset="440"/>
+                    </svg>
+                    <div class="absolute flex flex-col items-center">
+                        <span id="gauge-percent" class="text-3xl font-bold text-white">0%</span>
+                        <span id="gauge-tier" class="text-[10px] text-gray-400 uppercase tracking-widest">NO SHOT YET</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Coaching Instructions -->
+            <div class="hud-border rounded-lg p-4 border-blue-500/60 flex-1 flex flex-col">
+                <h2 class="text-lg font-bold text-blue-400 border-b border-blue-500/30 pb-2 mb-3">🧠 COHERENT AI COACHING</h2>
+                <div class="space-y-4 flex-1 flex flex-col justify-between text-sm">
+                    <div id="coach-tip-box" class="bg-blue-950/40 border border-blue-500/30 p-3 rounded leading-relaxed text-gray-300">
+                        Waiting for initial release calibration... Set up your ball, analyze the glowing preview trajectory, and execute the perfect release angle.
+                    </div>
+                    
+                    <!-- level indicators -->
+                    <div class="space-y-2 border-t border-blue-500/30 pt-3">
+                        <div class="text-xs text-gray-400 font-bold mb-2 uppercase">PROGRESSIVE SKILL LEVELS:</div>
+                        <div class="grid grid-cols-2 gap-2 text-center text-xs">
+                            <button id="btn-lvl-1" class="py-2 bg-blue-600 text-white font-bold rounded border border-blue-400/50">LVL 1: SWISH</button>
+                            <button id="btn-lvl-2" class="py-2 bg-gray-900 text-gray-400 hover:bg-gray-800 rounded border border-gray-700">LVL 2: BANK</button>
+                            <button id="btn-lvl-3" class="py-2 bg-gray-900 text-gray-400 hover:bg-gray-800 rounded border border-gray-700">LVL 3: BOUNCE</button>
+                            <button id="btn-lvl-4" class="py-2 bg-gray-900 text-gray-400 hover:bg-gray-800 rounded border border-gray-700">LVL 4: SPIN</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Interactive script bindings -->
+    <script src="physics.js"></script>
+    <script src="cv_tracker.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
