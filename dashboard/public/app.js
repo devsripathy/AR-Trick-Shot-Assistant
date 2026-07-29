@@ -39,7 +39,7 @@ const state = {
             obstacles: []
         }
     },
-    
+
     // Physical state
     ball: { x: 80, y: 350, z: 0 },
     ballVel: { x: 0, y: 0, z: 0 },
@@ -115,22 +115,22 @@ window.addEventListener('resize', resizeCanvas);
 function setupLevel(lvlId) {
     state.activeLevel = lvlId;
     const config = state.levels[lvlId];
-    
+
     // Clear flying state
     state.isFlying = false;
     state.flightPoints = [];
     state.flightIndex = 0;
-    
+
     // Reset positions
     state.ball = { ...config.ball };
     state.ballVel = { x: 0, y: 0, z: 0 };
-    
+
     // Update texts
     el.challengeTitle.innerText = config.title;
     el.challengeDesc.innerText = config.desc;
     el.challengeStatus.innerText = "NOT LANDED";
     el.challengeStatus.className = "px-2 py-0.5 bg-red-900/40 border border-red-500 text-red-400 text-xs rounded font-bold animate-pulse";
-    
+
     // Reset buttons styles
     [el.btnLvl1, el.btnLvl2, el.btnLvl3, el.btnLvl4].forEach((btn, idx) => {
         if ((idx + 1) === lvlId) {
@@ -153,7 +153,7 @@ function setupLevel(lvlId) {
         el.presetObject.value = "basketball";
         el.presetSurface.value = "wood";
     }
-    
+
     applyCalibrationDropdowns();
     updateCoachAIAdvice(null, 0);
 }
@@ -162,11 +162,11 @@ function setupLevel(lvlId) {
 function updateSuccessGauge(probability) {
     const percent = Math.round(probability * 100);
     el.gaugePercent.innerText = `${percent}%`;
-    
+
     // SVG radial perimeter: 2 * PI * r = 2 * 3.14 * 70 = 440
     const offset = 440 - (percent / 100) * 440;
     el.gaugeRing.style.strokeDashoffset = offset;
-    
+
     let tier = "MISS";
     if (probability > 0.75) {
         tier = "BULLSEYE";
@@ -264,7 +264,7 @@ function applyCalibrationDropdowns() {
     }
 
     physics.gravity.y = gravityVal;
-    
+
     // Update labels
     el.labelGravity.innerText = `${gravityVal.toFixed(2)} m/s²`;
 }
@@ -301,11 +301,11 @@ el.canvas.addEventListener('mousemove', (e) => {
 el.canvas.addEventListener('mouseup', () => {
     if (state.isDragging) {
         state.isDragging = false;
-        
+
         // Calculate launching velocity based on drag offsets
         const dx = state.dragStart.x - state.dragCurrent.x;
         const dy = state.dragStart.y - state.dragCurrent.y;
-        
+
         // Scale vectors into physics space
         const v0 = {
             x: dx * 0.15,
@@ -330,7 +330,7 @@ el.canvas.addEventListener('mouseup', () => {
             // Extract initial kinematics for telemetry readout
             const launchSpeed = Math.sqrt(v0.x * v0.x + v0.y * v0.y);
             const launchAngle = Math.atan2(-v0.y, v0.x) * (180 / Math.PI);
-            
+
             el.telemetrySpeed.innerText = `${launchSpeed.toFixed(1)} m/s`;
             el.telemetryAngle.innerText = `${launchAngle.toFixed(1)}°`;
             el.telemetrySpin.innerText = `${spinVal.toFixed(0)} RPM`;
@@ -382,7 +382,7 @@ function calculateMageAlternativeTrajectories() {
         const path = physics.solve(state.ball, v0, spinVector, config.obstacles);
         solutions.push(path);
     }
-    
+
     return solutions;
 }
 
@@ -405,7 +405,7 @@ function draw() {
         // Fallback grid backgrounds
         ctx.fillStyle = '#020617';
         ctx.fillRect(0, 0, el.canvas.width, el.canvas.height);
-        
+
         ctx.strokeStyle = 'rgba(59, 130, 246, 0.08)';
         ctx.lineWidth = 1;
         for (let x = 0; x < el.canvas.width; x += 40) {
@@ -460,6 +460,7 @@ function draw() {
         // Calculate dynamic launching velocity based on drag length
         const dx = state.dragStart.x - state.dragCurrent.x;
         const dy = state.dragStart.y - state.dragCurrent.y;
+
         
         const v0 = { x: dx * 0.15, y: dy * 0.15, z: 0 };
         const spinVal = parseFloat(el.inputSpin.value);
@@ -477,6 +478,7 @@ function draw() {
 
         // Compute preview probability score
         const previewSuccessProb = Math.max(0, Math.min(1.0, 1.0 - (minDistance / (config.target.r * 3.5))));
+
         
         // Render dynamic neon path
         ctx.beginPath();
@@ -484,6 +486,7 @@ function draw() {
             if (idx === 0) ctx.moveTo(p.pos.x, p.pos.y);
             else ctx.lineTo(p.pos.x, p.pos.y);
         });
+
         
         ctx.lineWidth = 4;
         ctx.strokeStyle = previewSuccessProb > 0.85 ? '#10b981' : (previewSuccessProb > 0.4 ? '#f59e0b' : '#ef4444');
@@ -506,6 +509,7 @@ function draw() {
         const curAngle = Math.spanAngle = Math.atan2(-v0.y, v0.x) * (180 / Math.PI);
         el.telemetrySpeed.innerText = `${curSpeed.toFixed(1)} m/s`;
         el.telemetryAngle.innerText = `${curAngle.toFixed(1)}°`;
+
         
         // Feed live AI coach tips
         updateCoachAIAdvice(minDistance, previewSuccessProb);
@@ -539,6 +543,7 @@ function draw() {
         const point = state.flightPoints[state.flightIndex];
         state.ball.x = point.pos.x;
         state.ball.y = point.pos.y;
+
         
         // Draw real-time flying coordinate tracking lines
         ctx.strokeStyle = 'rgba(96, 165, 250, 0.3)';
@@ -563,6 +568,7 @@ function draw() {
             ctx.fillStyle = '#fbbf24';
             ctx.font = '10px Share Tech Mono';
             ctx.fillText("BOUNCE IMPACT", state.ball.x + 15, state.ball.y - 10);
+
             
             // Increment bounce counters
             const currentBounces = parseInt(el.telemetryBounces.innerText) || 0;

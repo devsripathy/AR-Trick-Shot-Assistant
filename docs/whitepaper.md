@@ -83,6 +83,7 @@ Real-time tracking of the projectile from mobile camera streams is achieved usin
 To provide instant success probability and optimal release vector adjustments, a Multi-Layer Perceptron (MLP) runs on-device.
 
 * **Inputs ($12\text{-dim}$)**: `[start_pos(3), target_pos(3), velocity_vector(3), spin_vector(3)]`
+* **Network Layers**:
 * **Network Layers**: 
   * Linear ($12 \to 64$), BatchNorm1d, ReLU, Dropout
   * Linear ($64 \to 64$), BatchNorm1d, ReLU, Dropout

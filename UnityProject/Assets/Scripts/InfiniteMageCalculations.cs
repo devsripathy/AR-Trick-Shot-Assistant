@@ -78,7 +78,7 @@ namespace ARTrickShot
                     {
                         // Sweep pitch launch angles (20 to 75 degrees)
                         float pitchAngle = 20f + (p / (float)pitchIterations) * 55f;
-                        
+
                         // Construct velocity vector
                         Vector3 horizontalDir = new Vector3(baseDir.x, 0, baseDir.z).normalized;
                         Vector3 launchDir = (horizontalDir * Mathf.Cos(pitchAngle * Mathf.Deg2Rad)) + (Vector3.up * Mathf.Sin(pitchAngle * Mathf.Deg2Rad));

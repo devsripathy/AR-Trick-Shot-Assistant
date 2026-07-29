@@ -21,6 +21,17 @@ class TrajectoryPhysicsSimulator:
         pos = np.array(start_pos, dtype=float)
         vel = np.array(start_vel, dtype=float)
         omega = np.array(spin, dtype=float)
+
+        min_distance = float('inf')
+        bounce_count = 0
+        max_bounces = 2
+
+        for _ in range(max_steps):
+            speed = np.linalg.norm(vel)
+
+            # F_gravity = m * g
+            f_grav = self.mass * self.gravity
+
         
         min_distance = float('inf')
         bounce_count = 0
@@ -36,11 +47,20 @@ class TrajectoryPhysicsSimulator:
             f_drag = np.zeros(3)
             if speed > 0.001:
                 f_drag = -0.5 * self.drag_coeff * self.air_density * self.cross_sectional_area * speed * vel
+
             
             # F_magnus = Cl * rho * A * r * (omega x v)
             f_magnus = np.zeros(3)
             if speed > 0.001 and np.linalg.norm(omega) > 0.01:
                 f_magnus = self.lift_coeff * self.air_density * self.cross_sectional_area * self.radius * np.cross(omega, vel)
+
+            total_force = f_grav + f_drag + f_magnus
+            acc = total_force / self.mass
+
+            # Euler-Cromer integration
+            vel = vel + acc * dt
+            pos = pos + vel * dt
+
                 
             total_force = f_grav + f_drag + f_magnus
             acc = total_force / self.mass
@@ -60,11 +80,16 @@ class TrajectoryPhysicsSimulator:
                     bounce_count += 1
                 else:
                     break
+
                     
             # Compute distance to target
             dist = np.linalg.norm(pos - target_pos)
             if dist < min_distance:
                 min_distance = dist
+
+            if speed < 0.1 and _ > 10:
+                break
+
                 
             if speed < 0.1 and _ > 10:
                 break
@@ -82,6 +107,9 @@ class TrickShotDataset(Dataset):
     def __init__(self, num_samples=2000):
         self.inputs = []
         self.labels = []
+
+        sim = TrajectoryPhysicsSimulator()
+
         
         sim = TrajectoryPhysicsSimulator()
         
@@ -89,6 +117,11 @@ class TrickShotDataset(Dataset):
             # Randomize shooting conditions
             start_pos = [0.0, 1.5 + np.random.uniform(-0.5, 0.5), 0.0]
             target_pos = [np.random.uniform(2.0, 6.0), np.random.uniform(0.5, 2.5), np.random.uniform(-1.5, 1.5)]
+
+            # Standard ballistic speed estimation
+            dist = np.linalg.norm(np.array(target_pos) - np.array(start_pos))
+            v_estimate = np.sqrt(9.81 * dist)
+
             
             # Standard ballistic speed estimation
             dist = np.linalg.norm(np.array(target_pos) - np.array(start_pos))
@@ -105,6 +138,10 @@ class TrickShotDataset(Dataset):
                 np.random.uniform(-10.0, 10.0),
                 np.random.uniform(-10.0, 10.0)
             ]
+
+            # Run simulation
+            success_prob, min_dist = sim.simulate(start_pos, vel, spin, target_pos)
+
             
             # Run simulation
             success_prob, min_dist = sim.simulate(start_pos, vel, spin, target_pos)
@@ -114,11 +151,16 @@ class TrickShotDataset(Dataset):
             target_direction = np.array(target_pos) - np.array(start_pos)
             optimal_v = target_direction * 1.5
             v_correction = optimal_v - np.array(vel)
+
             
             # Input features: [start_pos(3), target_pos(3), velocity(3), spin(3)]
             x = np.concatenate([start_pos, target_pos, vel, spin])
             # Target output: [success_probability, correction_x, correction_y, correction_z]
             y = np.array([success_prob, v_correction[0], v_correction[1], v_correction[2]], dtype=np.float32)
+
+            self.inputs.append(x.astype(np.float32))
+            self.labels.append(y)
+
             
             self.inputs.append(x.astype(np.float32))
             self.labels.append(y)

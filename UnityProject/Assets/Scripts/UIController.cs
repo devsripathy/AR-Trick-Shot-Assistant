@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace ARTrickShot
 {
     /// <summary>
-    /// Displays coaching cues, telemetry metrics, and high-fidelity 
+    /// Displays coaching cues, telemetry metrics, and high-fidelity
     /// Infinite-Mage-style calculations onto the AR Screen.
     /// </summary>
     public class UIController : MonoBehaviour

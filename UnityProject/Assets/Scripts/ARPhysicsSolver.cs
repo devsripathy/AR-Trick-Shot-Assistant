@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ARTrickShot
 {
     /// <summary>
-    /// High-precision 3D ballistic trajectory solver with air resistance, Magnus spin forces, 
+    /// High-precision 3D ballistic trajectory solver with air resistance, Magnus spin forces,
     /// and multi-bounce environmental physics. Designed for real-time <10ms execution on mobile AR.
     /// </summary>
     public class ARPhysicsSolver : MonoBehaviour

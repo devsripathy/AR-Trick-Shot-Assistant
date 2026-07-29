@@ -10,18 +10,21 @@ from dataset import TrickShotDataset
 
 class TestMLPipeline(unittest.TestCase):
     """
+    Unit and integration tests to ensure PyTorch deep learning models load and run
     Unit and integration tests to ensure PyTorch deep learning models load and run 
     correctly, validating shapes and cross-platform export compatibility.
     """
 
     def test_model_shapes(self):
         """
+        Verify that our MLP network accepts input feature shape 12 and returns
         Verify that our MLP network accepts input feature shape 12 and returns 
         the expected 4-dimensional output values.
         """
         model = TrickShotCoachingNet(input_dim=12, hidden_dim=64)
         dummy_input = torch.randn(5, 12) # batch size 5
         outputs = model(dummy_input)
+
         
         self.assertEqual(outputs.shape, (5, 4))
         # Ensure success probability is bound between 0 and 1 (sigmoid)
@@ -34,6 +37,7 @@ class TestMLPipeline(unittest.TestCase):
         """
         dataset = TrickShotDataset(num_samples=50)
         self.assertEqual(len(dataset), 50)
+
         
         features, labels = dataset[0]
         self.assertEqual(features.shape, (12,))
@@ -45,6 +49,11 @@ class TestMLPipeline(unittest.TestCase):
         """
         pt_path = "ml_pipeline/trickshot_model.pt"
         self.assertTrue(os.path.exists(pt_path), "TorchScript model was not generated!")
+
+        traced_model = torch.jit.load(pt_path)
+        dummy_input = torch.randn(1, 12)
+        outputs = traced_model(dummy_input)
+
         
         traced_model = torch.jit.load(pt_path)
         dummy_input = torch.randn(1, 12)
@@ -58,6 +67,7 @@ class TestMLPipeline(unittest.TestCase):
         """
         onnx_path = "ml_pipeline/trickshot_model.onnx"
         self.assertTrue(os.path.exists(onnx_path), "ONNX model was not generated!")
+
         
         # Optionally test with onnx library if present
         import onnx
